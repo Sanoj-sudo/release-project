@@ -11,26 +11,32 @@ jobs:
     runs-on: ubuntu-latest
 
     permissions:
-      contents: write        # needed for changelog + tags
-      issues: write          # if you want GitHub issues
-      pull-requests: write   # if you want PR comments
+      contents: write
+      issues: write
+      pull-requests: write
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # required for semantic-release
+          fetch-depth: 0
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 20
 
+      - name: Install semantic-release and plugins
+        run: |
+          npm install --no-save \
+            semantic-release \
+            @semantic-release/changelog \
+            @semantic-release/git \
+            @semantic-release/github \
+            @semantic-release/release-notes-generator \
+            @semantic-release/commit-analyzer
+
       - name: Run Semantic Release
         run: npx semantic-release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Post-release info
-        if: success()
-        run: echo "✅ Semantic Release finished!"
